@@ -1,0 +1,84 @@
+services:
+  app:
+    container_name: pixels-app
+    build:
+      context: .
+      args:
+        - APP_ENV
+    command: npm run start:dev
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./:/usr/src/app:cached
+      - node_modules:/usr/src/app/node_modules
+    develop:
+      watch:
+        - path: ./
+          action: sync
+          target: /usr/src/app
+          ignore:
+            - node_modules/
+            - .git/
+            - dist/
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_PORT: ${APP_PORT}
+      DB_HOST: pgsqldb
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      JWT_ACCESS_TOKEN_EXP_IN_SEC: ${JWT_ACCESS_TOKEN_EXP_IN_SEC}
+      JWT_REFRESH_TOKEN_EXP_IN_SEC: ${JWT_REFRESH_TOKEN_EXP_IN_SEC}
+      JWT_PUBLIC_KEY_BASE64: ${JWT_PUBLIC_KEY_BASE64}
+      JWT_PRIVATE_KEY_BASE64: ${JWT_PRIVATE_KEY_BASE64}
+      DEFAULT_ADMIN_USER_PASSWORD: ${DEFAULT_ADMIN_USER_PASSWORD}
+    depends_on:
+      pgsqldb:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  pgsqldb:
+    container_name: pixels-db
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgsqldata:/var/lib/postgresql/data/pgdata
+      - ./scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  adminer:
+    container_name: pixels-adminer
+    image: adminer:latest
+    ports:
+      - '8080:8080'
+    depends_on:
+      - pgsqldb
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  node_modules:
+  pgsqldata:
+    driver: local

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# This scripts allows to use pnpm with the same version and
+# environment than the running service, using docker-compose.
+# This also allows to use it when not installed on the host.
+
+APP_SERVICE_IN_DOCKER_COMPOSE="app"
+
+getAppImage() {
+    docker-compose images --quiet $APP_SERVICE_IN_DOCKER_COMPOSE
+}
+
+if [ -z "$(getAppImage)" ]; then
+    # To be able to get the image created by docker-compose,
+    # we need the container to exist. This command makes sure
+    # that the container exists, and if necessary will build
+    # the image only the first time. We don't want to waste
+    # time building a new image everytime we call pnpm,
+    # so there is no need to use --build
+
+    echo -e "App container not available. Building it"
+    docker-compose create $APP_SERVICE_IN_DOCKER_COMPOSE
+fi
+
+echo -e "Running pnpm inside docker"
+docker run -v ${PWD}:/usr/src/app -it --rm "$(getAppImage)" sh -c "npm install -g pnpm && pnpm $@"
