@@ -11,15 +11,7 @@ services:
     volumes:
       - ./:/usr/src/app:cached
       - node_modules:/usr/src/app/node_modules
-    develop:
-      watch:
-        - path: ./
-          action: sync
-          target: /usr/src/app
-          ignore:
-            - node_modules/
-            - .git/
-            - dist/
+    # Removing the 'develop' section as it's not a standard compose feature
     environment:
       APP_ENV: ${APP_ENV}
       APP_PORT: ${APP_PORT}
@@ -38,6 +30,7 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    restart: unless-stopped # Added for better container management
 
   pgsqldb:
     container_name: pixels-db
@@ -63,16 +56,21 @@ services:
       resources:
         limits:
           memory: 1G
+    restart: unless-stopped # Added for better container management
 
   adminer:
     container_name: pixels-adminer
     image: adminer:latest
     ports:
       - '8080:8080'
+    environment:
+      ADMINER_DEFAULT_SERVER: pgsqldb # Add this line to specify default database host
     depends_on:
-      - pgsqldb
+      pgsqldb:
+        condition: service_healthy
     networks:
       - app-network
+    restart: unless-stopped # Added for better container management
 
 networks:
   app-network:
