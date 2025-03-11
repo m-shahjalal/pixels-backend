@@ -1,95 +1,107 @@
 import {
-  ArgumentsHost,
   Catch,
-  ExceptionFilter,
   HttpException,
+  ExceptionFilter,
+  Logger,
+  ArgumentsHost,
   HttpStatus,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { TypeORMError, QueryFailedError } from 'typeorm';
 import { Request, Response } from 'express';
+import { errorMessages } from '../../configs/messages';
 
-import { REQUEST_ID_TOKEN_HEADER } from '../../constants';
-import { BaseApiException } from './base-api.exception';
-import { AppLogger } from '../../shared/logger/logger.service';
-import { createRequestContext } from '../../utils/request-context/req-utilities';
+export interface CustomExceptionResponse {
+  statusCode: number;
+  message: string;
+  error: string;
+}
 
-@Catch()
-export class AllExceptionsFilter<T> implements ExceptionFilter {
-  /** set logger context */
-  constructor(
-    private config: ConfigService,
-    private readonly logger: AppLogger,
-  ) {
-    this.logger.setContext(AllExceptionsFilter.name);
+@Catch(HttpException, TypeORMError)
+export class AllExceptionFilter<T extends HttpException | TypeORMError>
+  implements ExceptionFilter
+{
+  private readonly logger = new Logger();
+  catch(exception: T, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+    const { method, originalUrl, query, headers, params, body } = request;
+    const requestId = headers?.requestId;
+
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+    } else if (exception instanceof QueryFailedError) {
+      const message = exception.message.toLowerCase();
+      if (['duplicate', 'unique constraint'].some((k) => message.includes(k))) {
+        status = HttpStatus.BAD_REQUEST;
+      }
+    }
+
+    try {
+      const { statusCode, message, error }: CustomExceptionResponse =
+        exception instanceof HttpException
+          ? (exception.getResponse() as CustomExceptionResponse)
+          : {
+              statusCode: status,
+              message: this.getReadableMessage(exception),
+              error: exception.name,
+            };
+
+      const stack = exception.stack || message;
+
+      this.logger.debug(
+        `${method}: ${originalUrl};
+        Params: ${JSON.stringify(params)};
+        Query: ${JSON.stringify(query)};
+        Body: ${JSON.stringify(body)};`,
+        `[DEBUG] [${method}:- ${originalUrl}] {reqID: ${requestId}}`,
+      );
+      this.logger.error(
+        JSON.stringify(exception),
+        `ExceptionFilter [${originalUrl}]: {reqID: ${requestId}}`,
+      );
+      this.logger.error(
+        JSON.stringify({ stack }),
+        `ExceptionFilter-stack [${originalUrl}]: {reqID: ${requestId}}`,
+      );
+
+      response.status(status).json({
+        statusCode,
+        success: false,
+        message: message || errorMessages.ERR0000.message,
+        error,
+      });
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify(error),
+        `ExceptionFilter processing error: {reqID: ${requestId}}`,
+      );
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        code: HttpStatus.INTERNAL_SERVER_ERROR,
+        success: false,
+        message: errorMessages.ERR0000.message,
+        meta: {
+          path: originalUrl,
+          method,
+          timestamp: new Date().toISOString(),
+          error: 'Internal Server Error',
+        },
+      });
+    }
   }
 
-  catch(exception: T, host: ArgumentsHost): any {
-    const ctx = host.switchToHttp();
-    const req: Request = ctx.getRequest<Request>();
-    const res: Response = ctx.getResponse<Response>();
-
-    const path = req.url;
-    const timestamp = new Date().toISOString();
-    const requestId = req.headers[REQUEST_ID_TOKEN_HEADER];
-    const requestContext = createRequestContext(req);
-
-    let stack: any;
-    let statusCode: HttpStatus | undefined = undefined;
-    let errorName: string | undefined = undefined;
-    let message: string | undefined = undefined;
-    let details: string | Record<string, any> | undefined = undefined;
-    // TODO : Based on language value in header, return a localized message.
-    const acceptedLanguage = 'ja';
-    let localizedMessage: string | undefined = undefined;
-
-    // TODO : Refactor the below cases into a switch case and tidy up error response creation.
-    if (exception instanceof BaseApiException) {
-      statusCode = exception.getStatus();
-      errorName = exception.constructor.name;
-      message = exception.message;
-      localizedMessage = exception.localizedMessage
-        ? exception.localizedMessage[acceptedLanguage]
-        : undefined;
-      details = exception.details || exception.getResponse();
-    } else if (exception instanceof HttpException) {
-      statusCode = exception.getStatus();
-      errorName = exception.constructor.name;
-      message = exception.message;
-      details = exception.getResponse();
-    } else if (exception instanceof Error) {
-      errorName = exception.constructor.name;
-      message = exception.message;
-      stack = exception.stack;
+  private getReadableMessage(exception: any): string {
+    if (exception instanceof QueryFailedError) {
+      const message = exception.message.toLowerCase();
+      if (
+        message.includes('duplicate') ||
+        message.includes('unique constraint')
+      ) {
+        return 'A record with this value already exists';
+      }
     }
-
-    // Set to internal server error in case it did not match above categories.
-    statusCode = statusCode || HttpStatus.INTERNAL_SERVER_ERROR;
-    errorName = errorName || 'InternalException';
-    message = message || 'Internal server error';
-
-    // NOTE: For reference, please check https://cloud.google.com/apis/design/errors
-    const error = {
-      statusCode,
-      message,
-      localizedMessage,
-      errorName,
-      details,
-      // Additional meta added by us.
-      path,
-      requestId,
-      timestamp,
-    };
-    this.logger.warn(requestContext, error.message, {
-      error,
-      stack,
-    });
-
-    // Suppress original internal server error details in prod mode
-    const isProMood = this.config.get<string>('env') !== 'development';
-    if (isProMood && statusCode === HttpStatus.INTERNAL_SERVER_ERROR) {
-      error.message = 'Internal server error';
-    }
-
-    res.status(statusCode).json({ error });
+    return exception.message;
   }
 }
