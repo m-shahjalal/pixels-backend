@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { compare, hash } from 'bcryptjs';
 import { plainToClass } from 'class-transformer';
 
+import { AppException } from '../../../shared/exceptions/app.exception';
 import { AppLogger } from '../../../shared/logger/logger.service';
 import { RequestContext } from '../../../utils/request-context/request-context.dto';
 import { CreateUserInput } from '../dtos/user-create-input.dto';
@@ -18,37 +19,35 @@ export class UserService {
   ) {
     this.logger.setContext(UserService.name);
   }
-  async createUser(
-    ctx: RequestContext,
-    input: CreateUserInput,
-  ): Promise<UserOutput> {
-    this.logger.log(ctx, `${this.createUser.name} was called`);
-
+  async createUser(input: CreateUserInput): Promise<UserOutput> {
     const user = plainToClass(User, input);
-
     user.password = await hash(input.password, 10);
 
-    this.logger.log(ctx, `calling ${UserRepository.name}.saveUser`);
-    await this.repository.save(user);
-
-    return plainToClass(UserOutput, user, {
-      excludeExtraneousValues: true,
+    const exists = await this.repository.findOne({
+      where: { email: user.email },
     });
+
+    if (exists)
+      throw AppException.conflict('Already account exists', 'DUPLICATE_EMAIL');
+    await this.repository.save(user);
+    return plainToClass(UserOutput, user, { excludeExtraneousValues: true });
   }
 
   async validateUsernamePassword(
-    ctx: RequestContext,
     username: string,
     pass: string,
   ): Promise<UserOutput> {
-    this.logger.log(ctx, `${this.validateUsernamePassword.name} was called`);
-
-    this.logger.log(ctx, `calling ${UserRepository.name}.findOne`);
-    const user = await this.repository.findOne({ where: { username } });
-    if (!user) throw new UnauthorizedException();
+    const user = await this.repository.findOne({
+      where: [{ username }, { email: username }],
+    });
+    if (!user) {
+      throw AppException.unauthorized('Invalid credentials');
+    }
 
     const match = await compare(pass, user.password);
-    if (!match) throw new UnauthorizedException();
+    if (!match) {
+      throw AppException.unauthorized('Invalid credentials');
+    }
 
     return plainToClass(UserOutput, user, {
       excludeExtraneousValues: true,

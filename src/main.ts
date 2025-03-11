@@ -10,12 +10,19 @@ import { TransformInterceptor } from './pipelines/interceptors/transform.interce
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Add CORS configuration
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    allowedHeaders: ['content-type', 'authorization', 'requestid'],
+  });
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_OPTIONS));
   app.useGlobalInterceptors(new TransformInterceptor());
   app.use(RequestIdMiddleware);
-  app.enableCors();
 
   /** Swagger configuration*/
   const options = new DocumentBuilder()

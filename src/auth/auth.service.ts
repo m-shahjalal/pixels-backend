@@ -13,7 +13,7 @@ import {
   AuthTokenOutput,
   UserAccessTokenClaims,
 } from './dtos/auth-token-output.dto';
-import { UserState } from '../modules/user/user.entity';
+import { LoginInput } from './dtos/auth-login-input.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,67 +27,41 @@ export class AuthService {
   }
 
   async validateUser(
-    ctx: RequestContext,
     username: string,
     pass: string,
   ): Promise<UserAccessTokenClaims> {
-    this.logger.log(ctx, `${this.validateUser.name} was called`);
-
-    // The userService will throw Unauthorized in case of invalid username/password.
-    const user = await this.userService.validateUsernamePassword(
-      ctx,
-      username,
-      pass,
-    );
-
     // Prevent disabled users from logging in.
-    if (user.state === UserState.ACTIVE) {
-      throw new UnauthorizedException('This user account has been disabled');
-    }
+    // if (user.state !== UserState.ACTIVE) {
+    //   throw new UnauthorizedException('This user account has been disabled');
+    // }
 
-    return user;
+    return await this.userService.validateUsernamePassword(username, pass);
   }
 
-  login(ctx: RequestContext): AuthTokenOutput {
-    this.logger.log(ctx, `${this.login.name} was called`);
-
-    return this.getAuthToken(ctx, ctx.user!);
+  async login(input: LoginInput): Promise<AuthTokenOutput> {
+    const user = await this.validateUser(input.email, input.password);
+    return this.getAuthToken(user);
   }
 
-  async register(
-    ctx: RequestContext,
-    input: RegisterInput,
-  ): Promise<RegisterOutput> {
-    this.logger.log(ctx, `${this.register.name} was called`);
-
-    const registeredUser = await this.userService.createUser(ctx, input);
+  async register(input: RegisterInput): Promise<RegisterOutput> {
+    const registeredUser = await this.userService.createUser(input);
     return plainToClass(RegisterOutput, registeredUser, {
       excludeExtraneousValues: true,
     });
   }
 
   async refreshToken(ctx: RequestContext): Promise<AuthTokenOutput> {
-    this.logger.log(ctx, `${this.refreshToken.name} was called`);
-
     const user = await this.userService.findById(ctx, ctx.user!.id);
     if (!user) {
       throw new UnauthorizedException('Invalid user id');
     }
 
-    return this.getAuthToken(ctx, user);
+    return this.getAuthToken(user);
   }
 
-  getAuthToken(
-    ctx: RequestContext,
-    user: UserAccessTokenClaims | UserOutput,
-  ): AuthTokenOutput {
-    this.logger.log(ctx, `${this.getAuthToken.name} was called`);
-
+  getAuthToken(user: UserAccessTokenClaims | UserOutput): AuthTokenOutput {
     const subject = { sub: user.id };
-    const payload = {
-      username: user.username,
-      sub: user.id,
-    };
+    const payload = { username: user.username ?? user.email, sub: user.id };
 
     const authToken = {
       refreshToken: this.jwtService.sign(subject, {

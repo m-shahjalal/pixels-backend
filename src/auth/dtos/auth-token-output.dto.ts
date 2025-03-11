@@ -15,9 +15,9 @@ export class UserAccessTokenClaims {
   @Expose()
   id: number;
   @Expose()
-  username: string;
+  username?: string;
   @Expose()
-  email: string;
+  email?: string;
 }
 
 export class UserRefreshTokenClaims {

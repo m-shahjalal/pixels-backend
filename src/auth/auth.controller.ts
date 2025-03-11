@@ -22,7 +22,9 @@ import { RegisterInput } from './dtos/auth-register-input.dto';
 import { RegisterOutput } from './dtos/auth-register-output.dto';
 import { AuthTokenOutput } from './dtos/auth-token-output.dto';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
-import { LocalAuthGuard } from './guards/local-auth.guard';
+import { LoginInput } from './dtos/auth-login-input.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Get } from '@nestjs/common';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -32,6 +34,26 @@ export class AuthController {
     private readonly logger: AppLogger,
   ) {
     this.logger.setContext(AuthController.name);
+  }
+
+  @Get('check')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Check authentication status' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SwaggerBaseApiResponse(Boolean),
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    type: BaseApiErrorResponse,
+  })
+  async checkAuth(): Promise<BaseApiResponse<boolean>> {
+    return {
+      data: true,
+      statusCode: HttpStatus.OK,
+      success: true,
+      message: 'User is authenticated',
+    };
   }
   @ApiResponse({
     status: HttpStatus.OK,
@@ -43,14 +65,18 @@ export class AuthController {
   })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: 'User login API' })
   @UseInterceptors(ClassSerializerInterceptor)
-  login(@ReqContext() ctx: RequestContext): BaseApiResponse<AuthTokenOutput> {
-    this.logger.log(ctx, `${this.login.name} was called`);
-
-    const authToken = this.authService.login(ctx);
-    return { data: authToken, meta: {} };
+  async login(
+    @Body() input: LoginInput,
+  ): Promise<BaseApiResponse<AuthTokenOutput>> {
+    const authToken = await this.authService.login(input);
+    return {
+      data: authToken,
+      statusCode: HttpStatus.OK,
+      success: true,
+      message: 'Login successful',
+    };
   }
 
   @ApiResponse({
@@ -60,11 +86,10 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'User registration API' })
   async registerLocal(
-    @ReqContext() ctx: RequestContext,
     @Body() input: RegisterInput,
-  ): Promise<BaseApiResponse<RegisterOutput>> {
-    const registeredUser = await this.authService.register(ctx, input);
-    return { data: registeredUser, meta: {} };
+  ): Promise<BaseApiResponse<AuthTokenOutput>> {
+    await this.authService.register(input);
+    return this.login({ email: input.email, password: input.password });
   }
 
   @ApiResponse({
@@ -80,9 +105,12 @@ export class AuthController {
   async refreshToken(
     @ReqContext() ctx: RequestContext,
   ): Promise<BaseApiResponse<AuthTokenOutput>> {
-    this.logger.log(ctx, `${this.refreshToken.name} was called`);
-
     const authToken = await this.authService.refreshToken(ctx);
-    return { data: authToken, meta: {} };
+    return {
+      data: authToken,
+      statusCode: HttpStatus.OK,
+      success: true,
+      message: 'Token refreshed successfully',
+    };
   }
 }
