@@ -1,29 +1,30 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Length,
   MaxLength,
 } from 'class-validator';
 
-export class RegisterInput {
-  @ApiProperty()
+export class CreateUserInput {
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNotEmpty()
-  @MaxLength(100)
   @IsString()
   firstName: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNotEmpty()
-  @MaxLength(100)
   @IsString()
   lastName: string;
 
   @ApiProperty()
   @IsNotEmpty()
-  @Length(6, 100)
   @IsString()
+  @Length(6, 100)
   password: string;
 
   @ApiProperty()

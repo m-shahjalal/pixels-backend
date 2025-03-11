@@ -1,6 +1,6 @@
 services:
   app:
-    container_name: pixels-app
+    container_name: alytic-app
     build:
       context: .
       args:
@@ -11,7 +11,7 @@ services:
     volumes:
       - ./:/usr/src/app:cached
       - node_modules:/usr/src/app/node_modules
-    # Removing the 'develop' section as it's not a standard compose feature
+
     environment:
       APP_ENV: ${APP_ENV}
       APP_PORT: ${APP_PORT}
@@ -33,7 +33,7 @@ services:
     restart: unless-stopped # Added for better container management
 
   pgsqldb:
-    container_name: pixels-db
+    container_name: alytic-db
     image: postgres:17
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -59,7 +59,7 @@ services:
     restart: unless-stopped # Added for better container management
 
   adminer:
-    container_name: pixels-adminer
+    container_name: alytic-adminer
     image: adminer:latest
     ports:
       - '8080:8080'

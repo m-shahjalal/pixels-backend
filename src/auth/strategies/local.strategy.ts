@@ -4,10 +4,10 @@ import { Request } from 'express';
 import { Strategy } from 'passport-local';
 
 import { AppLogger } from '../../shared/logger/logger.service';
-import { createRequestContext } from '../../shared/request-context/util';
-import { STRATEGY_LOCAL } from '../constants/strategy.constant';
+import { createRequestContext } from '../../utils/request-context/req-utilities';
+import { STRATEGY_LOCAL } from '../../constants/strategy.constant';
 import { UserAccessTokenClaims } from '../dtos/auth-token-output.dto';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, STRATEGY_LOCAL) {

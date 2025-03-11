@@ -6,7 +6,7 @@ export class LoginInput {
   @ApiProperty()
   @IsString()
   @MaxLength(200)
-  username: string;
+  email: string;
 
   @IsNotEmpty()
   @ApiProperty()

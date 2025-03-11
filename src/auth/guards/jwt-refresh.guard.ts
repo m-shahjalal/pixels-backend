@@ -6,7 +6,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 
-import { STRATEGY_JWT_REFRESH } from '../constants/strategy.constant';
+import { STRATEGY_JWT_REFRESH } from '../../constants/strategy.constant';
 
 @Injectable()
 export class JwtRefreshGuard extends AuthGuard(STRATEGY_JWT_REFRESH) {

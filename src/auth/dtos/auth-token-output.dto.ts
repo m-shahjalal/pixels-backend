@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
-import { ROLE } from '../constants/role.constant';
-
 export class AuthTokenOutput {
   @Expose()
   @ApiProperty()
@@ -19,7 +17,7 @@ export class UserAccessTokenClaims {
   @Expose()
   username: string;
   @Expose()
-  roles: ROLE[];
+  email: string;
 }
 
 export class UserRefreshTokenClaims {

@@ -3,10 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { configModuleOptions } from './configs/module-options';
-import { AllExceptionsFilter } from './filters/all-exceptions.filter';
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { configModuleOptions } from '../configs/module-options';
+
 import { AppLoggerModule } from './logger/logger.module';
+import { LoggingInterceptor } from '../pipelines/interceptors/logging.interceptor';
+import { AllExceptionsFilter } from '../pipelines/filters/all-exceptions.filter';
 
 @Module({
   imports: [

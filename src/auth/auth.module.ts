@@ -4,13 +4,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 import { SharedModule } from '../shared/shared.module';
-import { UserModule } from '../user/user.module';
-import { STRATEGY_JWT_AUTH } from './constants/strategy.constant';
-import { AuthController } from './controllers/auth.controller';
-import { AuthService } from './services/auth.service';
+import { UserModule } from '../modules/user/user.module';
+import { STRATEGY_JWT_AUTH } from '../constants/strategy.constant';
+import { AuthService } from './auth.service';
 import { JwtAuthStrategy } from './strategies/jwt-auth.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [

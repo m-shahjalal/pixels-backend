@@ -4,8 +4,8 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-import { VALIDATION_PIPE_OPTIONS } from './shared/constants';
-import { RequestIdMiddleware } from './shared/middlewares/request-id/request-id.middleware';
+import { VALIDATION_PIPE_OPTIONS } from './constants';
+import { RequestIdMiddleware } from './pipelines/middlewares/request-id.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

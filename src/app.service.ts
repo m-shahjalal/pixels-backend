@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
 import { AppLogger } from './shared/logger/logger.service';
-import { RequestContext } from './shared/request-context/request-context.dto';
 
 @Injectable()
 export class AppService {
@@ -9,9 +8,7 @@ export class AppService {
     this.logger.setContext(AppService.name);
   }
 
-  getHello(ctx: RequestContext): string {
-    this.logger.log(ctx, 'Hello world from App service');
-
+  getHello(): string {
     return 'Hello World!';
   }
 }

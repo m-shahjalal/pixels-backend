@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
-import { ROLE } from '../constants/role.constant';
-
 export class RegisterOutput {
   @Expose()
   @ApiProperty()
@@ -17,16 +15,12 @@ export class RegisterOutput {
   username: string;
 
   @Expose()
-  @ApiProperty({ example: [ROLE.USER] })
-  roles: ROLE[];
-
-  @Expose()
   @ApiProperty()
   email: string;
 
   @Expose()
   @ApiProperty()
-  isAccountDisabled: boolean;
+  state: string;
 
   @Expose()
   @ApiProperty()

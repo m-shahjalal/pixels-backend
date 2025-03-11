@@ -13,7 +13,7 @@ const typeOrmConfig = new DataSource({
   entities: [`${__dirname}/src/**/entities/*.entity{.ts,.js}`],
   migrations: [`${__dirname}/migrations/**/*{.ts,.js}`],
   migrationsRun: false,
-  synchronize: false,
+  synchronize: process.env.NODE_ENV === 'development',
 });
 
 export default typeOrmConfig;
