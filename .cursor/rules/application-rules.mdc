@@ -1,0 +1,377 @@
+---
+description: NestJS backend development standards and guidelines for maintaining consistent code quality and architecture
+globs: ["src/**/*.ts", "test/**/*.ts"]
+alwaysApply: true
+---
+# NestJS Backend API Development Rules
+
+## 1. Functional Requirements
+
+### 1.1 Authentication and Authorization
+- Implement user signup via email and phone number
+- Implement JWT-based authentication
+- Develop role-based access control system
+- Enable admin capability to assign roles and manage users
+
+### 1.2 Product and Inventory Management
+- Create API endpoints for product CRUD operations
+- Support product variants and attribute management
+- Implement tagging and labeling system for products
+- Build hierarchical category and subcategory structure
+- Develop location-based product availability
+- Create vendor order management and tracking system
+
+### 1.3 Storefront Management
+- Develop API endpoints for page creation and management
+- Create theme and style configuration endpoints
+- Implement SEO management endpoints
+- Support custom domain and subdomain management
+
+### 1.4 Customer Management
+- Build customer profile and data management
+- Implement customer segmentation logic
+- Create communication endpoints (email, SMS, WhatsApp)
+- Support bulk messaging operations
+
+### 1.5 Marketing Features
+- Develop Kanban board data structure and endpoints
+- Implement copywriting assistance API integration
+- Create Facebook page and shop integration endpoints
+- Build AI bot configuration and management API
+
+## 2. Non-Functional Requirements
+
+### 2.1 Performance
+- API response time < 200ms for standard operations
+- Database queries optimized for < 100ms execution
+- Support for 1000+ concurrent users
+- Implement appropriate caching strategies
+
+### 2.2 Security
+- Secure authentication using JWT
+- Implement role-based access control
+- Data encryption for sensitive information
+- API rate limiting and throttling
+
+### 2.3 Scalability
+- Design for horizontal scaling
+- Implement database indexing strategies
+- Support for microservice architecture if needed
+
+## 3. NestJS Project Structure
+
+```
+src/
+├── main.ts                  # Application entry point
+├── app.module.ts            # Root application module
+├── config/                  # Configuration files
+│   ├── database.config.ts
+│   ├── jwt.config.ts
+│   └── app.config.ts
+├── common/                  # Shared code
+│   ├── constants/           # Application constants
+│   ├── decorators/          # Custom decorators
+│   ├── filters/             # Exception filters
+│   ├── guards/              # Authorization guards
+│   ├── interceptors/        # Request/response interceptors
+│   ├── middleware/          # HTTP middleware
+│   ├── pipes/               # Validation pipes
+│   └── utils/               # Utility functions
+├── modules/                 # Feature modules
+│   ├── auth/                # Authentication module
+│   │   ├── auth.module.ts
+│   │   ├── auth.controller.ts
+│   │   ├── auth.service.ts
+│   │   ├── strategies/      # Passport strategies
+│   │   ├── guards/          # Auth guards
+│   │   ├── dto/             # Data transfer objects
+│   │   └── entities/        # Auth-related entities
+│   ├── users/               # User management
+│   │   ├── users.module.ts
+│   │   ├── users.controller.ts
+│   │   ├── users.service.ts
+│   │   ├── dto/
+│   │   └── entities/
+│   ├── products/            # Product management
+│   │   ├── products.module.ts
+│   │   ├── products.controller.ts
+│   │   ├── products.service.ts
+│   │   ├── dto/
+│   │   └── entities/
+│   ├── inventory/           # Inventory management
+│   │   ├── inventory.module.ts
+│   │   ├── inventory.controller.ts
+│   │   ├── inventory.service.ts
+│   │   ├── dto/
+│   │   └── entities/
+│   ├── storefront/          # Storefront management
+│   │   ├── storefront.module.ts
+│   │   ├── pages/
+│   │   ├── themes/
+│   │   ├── seo/
+│   │   └── domains/
+│   ├── customers/           # Customer management
+│   │   ├── customers.module.ts
+│   │   ├── segmentation/
+│   │   ├── communication/
+│   │   └── entities/
+│   └── marketing/           # Marketing features
+│       ├── marketing.module.ts
+│       ├── kanban/
+│       ├── copywriting/
+│       ├── social/
+│       └── bot/
+└── database/               # Database related files
+    ├── migrations/         # Database migrations
+    └── seeds/              # Database seed files
+```
+
+## 4. Coding Standards
+
+### 4.1 General Standards
+- Follow NestJS best practices and conventions
+- Use TypeScript strict mode
+- Maximum line length: 100 characters
+- Indentation: 2 spaces
+- Quotes: single quotes
+
+### 4.2 Naming Conventions
+- Files: kebab-case.type.ts (e.g., user.entity.ts, create-user.dto.ts)
+- Classes: PascalCase (e.g., UserService)
+- Methods/Functions: camelCase (e.g., findAllUsers)
+- Variables: camelCase (e.g., userList)
+- Interfaces: PascalCase with 'I' prefix (e.g., IUserData)
+- Constants: UPPER_SNAKE_CASE (e.g., MAX_USERS_PER_PAGE)
+
+### 4.3 Class Structure
+- Constructor at the top
+- Public methods next
+- Private methods last
+- Group related functionality together
+
+### 4.4 Documentation
+- Use JSDoc comments for classes, methods, and properties
+- Document all public APIs
+- Include examples in API documentation
+
+## 5. API Design Guidelines
+
+### 5.1 RESTful API Design
+- Use proper HTTP methods (GET, POST, PUT, PATCH, DELETE)
+- Follow resource-oriented URL naming `/resources/resource-id`
+- Use plural nouns for resources (e.g., `/users`, `/products`)
+- Support filtering, sorting, pagination for collection endpoints
+- Implement HATEOAS principles where appropriate
+
+### 5.2 Request/Response Structure
+- Use DTOs for all request payloads
+- Implement class-validator for validation
+- Standardize API responses:
+  ```typescript
+  {
+    success: boolean;
+    data?: any;
+    error?: {
+      code: string;
+      message: string;
+      details?: any;
+    };
+    meta?: {
+      pagination?: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      }
+    }
+  }
+  ```
+
+### 5.3 Status Codes
+- 200: Successful operation
+- 201: Resource created
+- 204: No content (successful deletion)
+- 400: Bad request (validation error)
+- 401: Unauthorized (not authenticated)
+- 403: Forbidden (not authorized)
+- 404: Resource not found
+- 409: Conflict (e.g., duplicate resource)
+- 500: Server error
+
+## 6. Database Guidelines
+
+### 6.1 MongoDB Schema Design
+- Use schema validation
+- Design documents with proper data embedding vs referencing
+- Create indexes for frequently queried fields
+- Implement soft deletion where appropriate
+
+### 6.2 Entity Design
+- Use TypeORM or Mongoose decorators for schema definition
+- Include timestamps (createdAt, updatedAt) on all documents
+- Apply proper validation at the schema level
+
+### 6.3 Query Optimization
+- Use projection to limit returned fields
+- Implement pagination for all list endpoints
+- Create compound indexes for complex queries
+- Use aggregation pipeline for complex data operations
+
+## 7. Authentication and Authorization
+
+### 7.1 Authentication Implementation
+- Use Passport.js with JWT strategy
+- Implement refresh token mechanism
+- Store password hashes using bcrypt
+- Implement optional 2FA using OTP
+
+### 7.2 Role-Based Access Control
+- Implement roles and permissions system
+- Create custom guards for role-based access
+- Use decorators for permission requirements
+- Log all access attempts and failures
+
+## 8. Testing Requirements
+
+### 8.1 Unit Testing
+- Aim for >80% code coverage
+- Test all service methods
+- Mock external dependencies
+- Use Jest for testing framework
+
+### 8.2 Integration Testing
+- Test all API endpoints
+- Verify database operations
+- Test authentication flows
+- Use supertest for HTTP testing
+
+### 8.3 E2E Testing
+- Test critical user flows
+- Test with real database instance (test environment)
+- Automate E2E tests in CI pipeline
+
+## 9. Deployment and DevOps
+
+### 9.1 Containerization
+- Use Docker for containerization
+- Implement multi-stage builds for optimization
+- Create separate development and production configurations
+
+### 9.2 Environment Configuration
+- Use environment variables for configuration
+- Implement config validation on startup
+- Keep secrets in secure storage (e.g., AWS Secrets Manager)
+
+
+## Project Structure
+```
+src/
+├── main.ts                  # Application entry point
+├── app.module.ts            # Root application module
+├── config/                  # Configuration files
+├── common/                  # Shared code
+├── modules/                 # Feature modules
+└── database/               # Database related files
+```
+
+## Coding Standards
+- TypeScript strict mode required
+- Line length: 100 characters max
+- Indentation: 2 spaces
+- Single quotes for strings
+- File naming: kebab-case.type.ts
+- Classes: PascalCase
+- Methods/Functions: camelCase
+- Variables: camelCase
+- Interfaces: IPascalCase
+- Constants: UPPER_SNAKE_CASE
+
+## Module Structure
+Each feature module should follow:
+```
+feature/
+├── feature.module.ts
+├── feature.controller.ts
+├── feature.service.ts
+├── dto/
+│   ├── create-feature.dto.ts
+│   ├── update-feature.dto.ts
+│   └── feature-response.dto.ts
+└── entities/
+    └── feature.entity.ts
+```
+
+## API Response Format
+```typescript
+{
+  success: boolean;
+  data?: any;
+  error?: {
+    code: string;
+    message: string;
+    details?: any;
+  };
+  meta?: {
+    pagination?: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    }
+  }
+}
+```
+
+## HTTP Status Codes
+- 200: Success
+- 201: Created
+- 204: No Content
+- 400: Bad Request
+- 401: Unauthorized
+- 403: Forbidden
+- 404: Not Found
+- 409: Conflict
+- 500: Server Error
+
+## Database Guidelines
+- Use schema validation
+- Include timestamps (createdAt, updatedAt)
+- Implement soft deletion
+- Create indexes for frequent queries
+- Use projection to limit fields
+- Implement pagination
+
+## Authentication
+- JWT-based authentication
+- Refresh token mechanism
+- Password hashing with bcrypt
+- Optional 2FA with OTP
+- Role-based access control
+
+## Testing Requirements
+- Unit tests: >80% coverage
+- Integration tests for all endpoints
+- E2E tests for critical flows
+- Use Jest framework
+
+## Performance Requirements
+- API response time: <200ms
+- Query execution: <100ms
+- Support 1000+ concurrent users
+- Implement caching strategies
+
+## Security Requirements
+- JWT authentication
+- Role-based access control
+- Data encryption
+- API rate limiting
+- Input validation
+- XSS protection
+- CSRF protection
+
+## Documentation
+- JSDoc for all public APIs
+- Include usage examples
+- Document all environment variables
+- API endpoint documentation
+- Database schema documentation
