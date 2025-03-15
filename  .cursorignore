@@ -3,6 +3,8 @@ node_modules/
 dist/
 build/
 coverage/
+.pnpm-store/
+.husky/
 .env
 yarn.lock
 package-lock.json

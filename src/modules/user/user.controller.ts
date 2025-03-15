@@ -1,37 +1,24 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Get,
   HttpStatus,
   Param,
-  Patch,
+  Post,
+  Put,
   Query,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import {
-  BaseApiErrorResponse,
-  BaseApiResponse,
-  SwaggerBaseApiResponse,
-} from '../../utils/dtos/base-api-response.dto';
-import { PaginationParamsDto } from '../../utils/dtos/pagination-params.dto';
-import { AppLogger } from '../../shared/logger/logger.service';
-import { ReqContext } from '../../utils/request-context/req-context.decorator';
-import { RequestContext } from '../../utils/request-context/request-context.dto';
-import { UserOutput } from './dtos/user-output.dto';
-import { UpdateUserInput } from './dtos/user-update-input.dto';
+import { AppLogger } from '../../common/logger/logger.service';
+import { ReqContext } from '../../common/decorators/request-context.decorator';
+import { RequestContext } from '../../common/request-context/request-context.dto';
+import { BaseApiResponse } from '../../common/dtos/base-api-response.dto';
+import { PaginationParamsDto } from '../../common/dtos/pagination-params.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { UserService } from './services/user.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { User } from './entities/user.entity';
 
-@ApiTags('users')
 @Controller('users')
 export class UserController {
   constructor(
@@ -42,125 +29,84 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get('me')
-  @ApiOperation({
-    summary: 'Get user me API',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: SwaggerBaseApiResponse(UserOutput),
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    type: BaseApiErrorResponse,
-  })
   async getMyProfile(
     @ReqContext() ctx: RequestContext,
-  ): Promise<BaseApiResponse<UserOutput>> {
-    this.logger.log(ctx, `${this.getMyProfile.name} was called`);
-
-    const user = await this.userService.findById(ctx, ctx.user!.id);
+  ): Promise<BaseApiResponse<User>> {
+    const user = await this.userService.findById(ctx.user!.id);
     return {
-      data: user,
-      statusCode: HttpStatus.OK,
       success: true,
-      message: 'User profile retrieved successfully',
+      statusCode: HttpStatus.OK,
+      data: user,
     };
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
+  @Post()
+  async createUser(
+    @ReqContext() ctx: RequestContext,
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<BaseApiResponse<User>> {
+    const user = await this.userService.create(createUserDto);
+    return {
+      success: true,
+      statusCode: HttpStatus.CREATED,
+      data: user,
+    };
+  }
+
   @Get()
-  @ApiOperation({
-    summary: 'Get users as a list API',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: SwaggerBaseApiResponse([UserOutput]),
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    type: BaseApiErrorResponse,
-  })
-  @ApiBearerAuth()
   async getUsers(
     @ReqContext() ctx: RequestContext,
     @Query() query: PaginationParamsDto,
-  ): Promise<BaseApiResponse<UserOutput[]>> {
-    this.logger.log(ctx, `${this.getUsers.name} was called`);
-
+  ): Promise<BaseApiResponse<{ users: User[]; count: number }>> {
+    const { limit = 10, offset = 0 } = query;
     const { users, count } = await this.userService.getUsers(
       ctx,
-      query.limit,
-      query.offset,
+      limit,
+      offset,
     );
+    const page = Math.floor(offset / limit) + 1;
+    const totalPages = Math.ceil(count / limit);
 
     return {
-      data: users,
-      meta: { count },
-      statusCode: HttpStatus.OK,
       success: true,
-      message: 'Users retrieved successfully',
+      statusCode: HttpStatus.OK,
+      data: { users, count },
+      meta: {
+        pagination: {
+          page,
+          limit,
+          total: count,
+          totalPages,
+        },
+      },
     };
   }
 
-  // TODO: ADD RoleGuard
-  // NOTE : This can be made a admin only endpoint. For normal users they can use GET /me
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
-  @ApiOperation({
-    summary: 'Get user by id API',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: SwaggerBaseApiResponse(UserOutput),
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    type: BaseApiErrorResponse,
-  })
-  async getUser(
+  async getUserById(
     @ReqContext() ctx: RequestContext,
-    @Param('id') id: number,
-  ): Promise<BaseApiResponse<UserOutput>> {
-    this.logger.log(ctx, `${this.getUser.name} was called`);
-
-    const user = await this.userService.getUserById(ctx, id);
+    @Param('id') id: string,
+  ): Promise<BaseApiResponse<User>> {
+    const user = await this.userService.findById(id);
     return {
-      data: user,
-      statusCode: HttpStatus.OK,
       success: true,
-      message: 'User retrieved successfully',
+      statusCode: HttpStatus.OK,
+      data: user,
     };
   }
 
-  // TODO: ADD RoleGuard
-  // NOTE : This can be made a admin only endpoint. For normal users they can use PATCH /me
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update user API' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: SwaggerBaseApiResponse(UserOutput),
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    type: BaseApiErrorResponse,
-  })
-  @UseInterceptors(ClassSerializerInterceptor)
+  @Put(':id')
   async updateUser(
     @ReqContext() ctx: RequestContext,
-    @Param('id') userId: number,
-    @Body() input: UpdateUserInput,
-  ): Promise<BaseApiResponse<UserOutput>> {
-    this.logger.log(ctx, `${this.updateUser.name} was called`);
-
-    const user = await this.userService.updateUser(ctx, userId, input);
+    @Param('id') id: string,
+    @Body() updateData: Partial<User>,
+  ): Promise<BaseApiResponse<User>> {
+    const user = await this.userService.update(id, updateData);
     return {
-      data: user,
-      statusCode: HttpStatus.OK,
       success: true,
-      message: 'User updated successfully',
+      statusCode: HttpStatus.OK,
+      data: user,
     };
   }
 }

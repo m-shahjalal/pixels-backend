@@ -2,41 +2,44 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
 import { AppModule } from './app.module';
-import { VALIDATION_PIPE_OPTIONS } from './constants';
-import { RequestIdMiddleware } from './pipelines/middlewares/request-id.middleware';
-import { TransformInterceptor } from './pipelines/interceptors/transform.interceptor';
+import { APP_CONFIG_KEY } from './config/app.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
 
-  // Add CORS configuration
-  app.enableCors({
-    origin: 'http://localhost:3000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-    allowedHeaders: ['content-type', 'authorization', 'requestid'],
-  });
-  app.setGlobalPrefix('api/v1');
+  // Global prefix
+  const apiPrefix = configService.get(`${APP_CONFIG_KEY}.apiPrefix`);
+  app.setGlobalPrefix(apiPrefix);
 
-  app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_OPTIONS));
-  app.useGlobalInterceptors(new TransformInterceptor());
-  app.use(RequestIdMiddleware);
+  // Validation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
-  /** Swagger configuration*/
-  const options = new DocumentBuilder()
-    .setTitle('Nestjs API starter')
-    .setDescription('Nestjs API description')
+  // Swagger
+  const config = new DocumentBuilder()
+    .setTitle('Alysia API')
+    .setDescription('The Alysia API description')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('swagger', app, document);
+  // CORS
+  app.enableCors();
 
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('port');
-  await app.listen(port || 3000);
+  // Start the server
+  const port = configService.get<number>(`${APP_CONFIG_KEY}.port`);
+  await app.listen(port);
+  console.info(
+    `🚀 Application is running on: http://localhost:${port}/${apiPrefix}`,
+  );
 }
 bootstrap();
