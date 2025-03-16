@@ -1,12 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-
-import { UserState } from '../user.entity';
+import { ROLE } from '../../../common/constants';
 
 export class UserOutput {
   @Expose()
   @ApiProperty()
-  id: number;
+  id: string;
 
   @Expose()
   @ApiProperty()
@@ -18,26 +17,17 @@ export class UserOutput {
 
   @Expose()
   @ApiProperty()
-  username: string;
-
-  @Expose()
-  @ApiProperty()
   email: string;
 
   @Expose()
   @ApiProperty({
-    enum: UserState,
-    enumName: 'UserState',
-    description: 'User account state',
-    example: UserState.ACTIVE,
-    examples: [
-      UserState.ACTIVE,
-      UserState.DEACTIVATED,
-      UserState.BLOCKED,
-      UserState.PENDING,
-    ],
+    enum: ROLE,
+    enumName: 'ROLE',
+    description: 'User role',
+    example: ROLE.USER,
+    examples: [ROLE.USER, ROLE.ADMIN],
   })
-  state: UserState;
+  role: ROLE;
 
   @Expose()
   @ApiProperty()

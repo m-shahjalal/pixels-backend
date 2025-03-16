@@ -32,7 +32,16 @@ export class AppConfigService {
       password: this.configService.get<string>(
         `${CONFIG_KEY}.database.password`,
       ),
-      name: this.configService.get<string>(`${CONFIG_KEY}.database.name`),
+      database: this.configService.get<string>(
+        `${CONFIG_KEY}.database.database`,
+      ),
+      synchronize: this.configService.get<boolean>(
+        `${CONFIG_KEY}.database.synchronize`,
+      ),
+      logging: this.configService.get<boolean>(
+        `${CONFIG_KEY}.database.logging`,
+      ),
+      ssl: this.configService.get<boolean>(`${CONFIG_KEY}.database.ssl`),
     };
   }
 

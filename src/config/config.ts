@@ -42,8 +42,8 @@ export interface DatabaseConfig {
   migrations: string[];
   synchronize: boolean;
   logging: boolean;
-  autoLoadEntities: boolean;
-  ssl: boolean;
+  autoLoadEntities?: boolean;
+  ssl?: boolean;
 }
 
 export interface JwtConfig {
@@ -82,8 +82,8 @@ export default registerAs(
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASS || 'postgres',
       database: process.env.DB_NAME || 'alysia',
-      entities: ['dist/**/*.entity{.ts,.js}'],
-      migrations: ['dist/database/migrations/*{.ts,.js}'],
+      entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
+      migrations: ['database/migrations/*{.ts,.js}'],
       synchronize: process.env.NODE_ENV === 'development',
       logging: process.env.NODE_ENV === 'development',
       autoLoadEntities: true,
