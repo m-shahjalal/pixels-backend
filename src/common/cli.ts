@@ -17,9 +17,9 @@ export class CliService {
     const existingUser = await this.userService.findByEmail(defaultAdmin.email);
     if (!existingUser) {
       await this.userService.create(defaultAdmin);
-      console.log('Default admin user created');
+      console.info('Default admin user created');
     } else {
-      console.log('Default admin user already exists');
+      console.info('Default admin user already exists');
     }
   }
 }

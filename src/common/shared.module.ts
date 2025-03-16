@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 
-import { configModuleOptions } from '../configs/module-options';
 import { LoggerModule } from './logger/logger.module';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
@@ -15,7 +14,6 @@ import { SmsService } from './services/sms.service';
 @Global()
 @Module({
   imports: [
-    ConfigModule.forRoot(configModuleOptions),
     LoggerModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -43,6 +41,6 @@ import { SmsService } from './services/sms.service';
     EmailService,
     SmsService,
   ],
-  exports: [ConfigModule, LoggerModule, JwtModule, EmailService, SmsService],
+  exports: [LoggerModule, JwtModule, EmailService, SmsService],
 })
 export class SharedModule {}

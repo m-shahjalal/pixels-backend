@@ -9,10 +9,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService).get(CONFIG_KEY);
 
-  console.log('🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 config =>', config);
-
   // Global prefix
-  app.setGlobalPrefix(config.apiPrefix);
+  app.setGlobalPrefix(config.app.apiPrefix);
 
   // Validation
   app.useGlobalPipes(
@@ -38,7 +36,7 @@ async function bootstrap() {
   // Start the server
   await app.listen(config.app.port);
   console.info(
-    `🚀 Application is running on: http://localhost:${config.app.port}/${config.app.apiPrefix}`,
+    `🚀🚀 http://localhost:${config.app.port}/${config.app.apiPrefix}`,
   );
 }
 bootstrap();

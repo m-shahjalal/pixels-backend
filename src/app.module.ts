@@ -3,15 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from './config/config.module';
 import { AppController } from './app.controller';
 import { SharedModule } from './common/shared.module';
-import { TypeOrmConfigService } from './config/database.service';
+import { TypeOrmService } from './app.service';
 
 @Module({
   imports: [
     AppConfigModule,
+    TypeOrmModule.forRootAsync({ useClass: TypeOrmService }),
     SharedModule,
-    TypeOrmModule.forRootAsync({
-      useClass: TypeOrmConfigService,
-    }),
   ],
   controllers: [AppController],
 })
