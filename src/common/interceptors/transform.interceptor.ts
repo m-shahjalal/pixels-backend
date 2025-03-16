@@ -21,26 +21,17 @@ export class TransformInterceptor<T>
     const statusCode = response.statusCode || HttpStatus.OK;
 
     return next.handle().pipe(
-      map((responseData) => {
-        // Check if response contains data property
-        const data =
-          responseData?.data !== undefined ? responseData.data : responseData;
-
-        // Extract meta if exists
-        const meta = responseData?.meta;
+      map((res) => {
+        if (!res?.success) return res;
 
         const transformedResponse: ApiResponse<T> = {
           statusCode,
           success: true,
           message: 'Success',
-          data,
+          data: res?.data !== undefined ? res.data : res,
         };
 
-        // Add meta if exists
-        if (meta) {
-          transformedResponse.meta = meta;
-        }
-
+        if (res?.meta) transformedResponse.meta = res.meta;
         return transformedResponse;
       }),
     );

@@ -9,7 +9,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppLogger } from '@common/logger/logger.service';
 import { ReqContext } from '@common/decorators/request-context.decorator';
 import { RequestContext } from '@common/request-context/request-context.dto';
@@ -73,14 +72,7 @@ export class UserController {
       success: true,
       statusCode: HttpStatus.OK,
       data: { users, count },
-      meta: {
-        pagination: {
-          page,
-          limit,
-          total: count,
-          totalPages,
-        },
-      },
+      meta: { page, limit, total: count, totalPages },
     };
   }
 

@@ -19,9 +19,22 @@ export class UserService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = this.userRepository.create(createUserDto);
-    user.password = await bcrypt.hash(user.password, 10);
-    return this.userRepository.save(user);
+    try {
+      this.logger.log(
+        `Creating new user with email: ${createUserDto.email} or phone: ${createUserDto.phone}`,
+      );
+
+      const user = this.userRepository.create(createUserDto);
+      user.password = await bcrypt.hash(user.password, 10);
+
+      const savedUser = await this.userRepository.save(user);
+      this.logger.log(`Successfully created user with id: ${savedUser.id}`);
+
+      return savedUser;
+    } catch (error) {
+      this.logger.error(`Failed to create user: ${error.message}`, error.stack);
+      throw error; // Let the filter handle the error
+    }
   }
 
   async findById(id: string): Promise<User> {

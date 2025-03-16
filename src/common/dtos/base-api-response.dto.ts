@@ -40,9 +40,7 @@ export class BaseApiResponse<T> {
   error?: ErrorResponse;
 
   @ApiPropertyOptional()
-  meta?: {
-    pagination?: PaginationMeta;
-  };
+  meta?: PaginationMeta;
 }
 
 type ApiPropertyType =

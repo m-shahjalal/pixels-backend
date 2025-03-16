@@ -10,10 +10,15 @@ export class BaseApiException extends HttpException {
     details?: string | Record<string, any>,
     localizedMessage?: Record<string, string>,
   ) {
-    // Calling parent constructor of base Exception class.
     super(message, status);
     this.name = BaseApiException.name;
     this.localizedMessage = localizedMessage;
     this.details = details;
+  }
+}
+
+export class BadRequestException extends BaseApiException {
+  constructor(message: string, details?: string | Record<string, any>) {
+    super(message, 400, details);
   }
 }

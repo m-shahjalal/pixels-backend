@@ -7,7 +7,6 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AppLogger } from '../logger/logger.service';
-import { createRequestContext } from '../request-context/req-utilities';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -17,7 +16,6 @@ export class LoggingInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
-    const ctx = createRequestContext(request);
     const startTime = Date.now();
 
     return next.handle().pipe(
