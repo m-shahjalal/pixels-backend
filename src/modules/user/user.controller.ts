@@ -9,12 +9,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AppLogger } from '../../common/logger/logger.service';
-import { ReqContext } from '../../common/decorators/request-context.decorator';
-import { RequestContext } from '../../common/request-context/request-context.dto';
-import { BaseApiResponse } from '../../common/dtos/base-api-response.dto';
-import { PaginationParamsDto } from '../../common/dtos/pagination-params.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AppLogger } from '@common/logger/logger.service';
+import { ReqContext } from '@common/decorators/request-context.decorator';
+import { RequestContext } from '@common/request-context/request-context.dto';
+import { BaseApiResponse } from '@common/dtos/base-api-response.dto';
+import { PaginationParamsDto } from '@common/dtos/pagination-params.dto';
+import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import { UserService } from './services/user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';

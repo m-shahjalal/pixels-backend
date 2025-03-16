@@ -4,8 +4,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
-import { UsersModule } from '../user/user.module';
-import { SharedModule } from '../../common/shared.module';
+import { UsersModule } from '@modules/user/user.module';
+import { SharedModule } from '@common/shared.module';
 
 @Module({
   imports: [UsersModule, PassportModule, SharedModule],
