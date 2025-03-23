@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UserService } from '../modules/user/services/user.service';
-import { CreateUserDto } from '../modules/user/dto/create-user.dto';
+import { UserService } from '../modules/users/services/user.service';
+import { CreateUserDto } from '../modules/users/dto/create-user.dto';
 
 @Injectable()
 export class CliService {

@@ -44,6 +44,7 @@ export interface DatabaseConfig {
   logging: boolean;
   autoLoadEntities?: boolean;
   ssl?: boolean;
+  schema?: string;
 }
 
 export interface JwtConfig {
@@ -72,7 +73,7 @@ export default registerAs(
   (): Config => ({
     app: {
       port: parseInt(process.env.APP_PORT || '4000', 10),
-      env: process.env.NODE_ENV || 'development',
+      env: process.env.APP_ENV || 'development',
       apiPrefix: process.env.API_PREFIX || 'api',
     },
     database: {
@@ -84,10 +85,11 @@ export default registerAs(
       database: process.env.DB_NAME || 'alysia',
       entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
       migrations: ['database/migrations/*{.ts,.js}'],
-      synchronize: process.env.NODE_ENV === 'development',
-      logging: process.env.NODE_ENV === 'development',
+      synchronize: process.env.DB_SYNCHRONIZE === 'true',
+      logging: process.env.DB_LOGGING === 'true',
       autoLoadEntities: true,
-      ssl: process.env.NODE_ENV === 'production',
+      ssl: process.env.DB_SSL === 'true',
+      schema: process.env.DB_SCHEMA || 'public',
     },
     jwt: {
       secret: process.env.JWT_SECRET || 'super-secret',

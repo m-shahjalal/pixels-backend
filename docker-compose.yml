@@ -7,19 +7,22 @@ services:
     ports:
       - '${APP_PORT}:${APP_PORT}'
     environment:
-      - NODE_ENV=development
+      - APP_ENV=${APP_ENV:-development}
       - APP_PORT=${APP_PORT}
+      - API_PREFIX=${API_PREFIX}
       - DB_HOST=pgsqldb
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
+      - DB_SYNCHRONIZE=${DB_SYNCHRONIZE}
+      - DB_LOGGING=${DB_LOGGING}
+      - DB_SSL=${DB_SSL}
+      - DB_SCHEMA=${DB_SCHEMA}
       - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
-      - JWT_ACCESS_TOKEN_EXP_IN_SEC=${JWT_ACCESS_TOKEN_EXP_IN_SEC}
-      - JWT_REFRESH_TOKEN_EXP_IN_SEC=${JWT_REFRESH_TOKEN_EXP_IN_SEC}
-      - JWT_PUBLIC_KEY_BASE64=${JWT_PUBLIC_KEY_BASE64}
-      - JWT_PRIVATE_KEY_BASE64=${JWT_PRIVATE_KEY_BASE64}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_REFRESH_EXPIRATION=${JWT_REFRESH_EXPIRATION}
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT}
       - SMTP_SECURE=${SMTP_SECURE}
@@ -35,13 +38,15 @@ services:
       - /usr/src/app/node_modules
     depends_on:
       - pgsqldb
-    command: npm run start:dev
+    command: sh -c "if [ \"$APP_ENV\" = 'production' ]; then pnpm build && pnpm start; else pnpm dev; fi"
     networks:
       - alysia-network
 
   pgsqldb:
     container_name: alysia-db
-    image: postgres:15-alpine
+    image: postgres
+    restart: always
+    shm_size: 128MB
     ports:
       - '${DB_PORT}:5432'
     environment:
@@ -50,7 +55,7 @@ services:
       - POSTGRES_DB=${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/docker/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
       interval: 10s
@@ -69,6 +74,8 @@ services:
       - ADMINER_DEFAULT_SERVER=pgsqldb
     depends_on:
       - pgsqldb
+    volumes:
+      - ./scripts/docker/docker-adminer.css:/var/www/html/adminer.css
     networks:
       - alysia-network
 

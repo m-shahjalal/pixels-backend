@@ -9,7 +9,6 @@
     "initdb",
     "keygen",
     "nodemon",
-    "ormconfig",
     "ossp",
     "outform",
     "PGDATA",

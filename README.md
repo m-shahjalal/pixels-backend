@@ -34,14 +34,14 @@ Edit the `.env` file with your configuration.
 4. Start the development server:
 
 ```bash
-npm run start:dev
+npm run dev
 ```
 
 ## Available Scripts
 
 - `npm run build` - Build the application
 - `npm run start` - Start the application in production mode
-- `npm run start:dev` - Start the application in development mode
+- `npm run dev` - Start the application in development mode
 - `npm run test` - Run tests
 - `npm run lint` - Run linting
 

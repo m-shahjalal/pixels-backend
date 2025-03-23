@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CONFIG_KEY } from './config';
 import { Config, Path, PathValue } from './config';
+import { DataSourceOptions } from 'typeorm';
 
 @Injectable()
 export class AppConfigService {
@@ -13,7 +14,6 @@ export class AppConfigService {
     );
   }
 
-  // Typed getters for common configurations
   public get app() {
     return {
       port: this.configService.get<number>(`${CONFIG_KEY}.app.port`),
@@ -22,26 +22,19 @@ export class AppConfigService {
     };
   }
 
-  public get database() {
+  public get databaseConfig(): DataSourceOptions {
     return {
-      host: this.configService.get<string>(`${CONFIG_KEY}.database.host`),
-      port: this.configService.get<number>(`${CONFIG_KEY}.database.port`),
-      username: this.configService.get<string>(
-        `${CONFIG_KEY}.database.username`,
-      ),
-      password: this.configService.get<string>(
-        `${CONFIG_KEY}.database.password`,
-      ),
-      database: this.configService.get<string>(
-        `${CONFIG_KEY}.database.database`,
-      ),
-      synchronize: this.configService.get<boolean>(
-        `${CONFIG_KEY}.database.synchronize`,
-      ),
-      logging: this.configService.get<boolean>(
-        `${CONFIG_KEY}.database.logging`,
-      ),
-      ssl: this.configService.get<boolean>(`${CONFIG_KEY}.database.ssl`),
+      type: 'postgres',
+      host: this.configService.get('DB_HOST', 'localhost'),
+      port: this.configService.get('DB_PORT', 5432),
+      username: this.configService.get('DB_USERNAME', 'postgres'),
+      password: this.configService.get('DB_PASSWORD', 'postgres'),
+      database: this.configService.get('DB_NAME', 'alysia'),
+      entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
+      migrations: ['./database/migrations/*.ts'],
+      migrationsRun: true,
+      synchronize: this.configService.get('APP_ENV') !== 'production',
+      logging: this.configService.get('APP_ENV') !== 'production',
     };
   }
 
