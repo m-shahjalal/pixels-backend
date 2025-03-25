@@ -1,23 +1,23 @@
 import { promisify } from 'util';
 import { log } from './etc';
 import { exec } from 'child_process';
+import { DataSource } from 'typeorm';
 import { datasource } from '../../../src/database/data-source';
 
 export const validateDbConnection = async () => {
-  const execAsync = promisify(exec);
+  let connection: DataSource | null = null;
 
-  const loader = log.startLoader('Validating database connection...');
+  const loader = log.startLoader('⏳ Validating database connection...');
 
   try {
-    await execAsync(
-      `ts-node -r tsconfig-paths/register ./scripts/database/check-connection.ts`,
-    );
-    loader.stop('✅', 'Database connection successful!');
+    connection = await datasource.initialize();
+    loader.stop('⛓️‍💥', 'Database connection established');
     return true;
   } catch (error) {
-    loader.stop('❌', 'Database connection failed!');
-    console.error(error.message);
+    loader.stop('❌', `Database connection failed!${error.message}`);
     return false;
+  } finally {
+    if (connection) await connection.destroy();
   }
 };
 
@@ -25,6 +25,7 @@ export const validateDbConnection = async () => {
 export const runTypeOrmCommand = async (
   command: string,
   args: string[] = [],
+  options?: { showQueries?: boolean },
 ) => {
   const isConnected = await validateDbConnection();
   const execAsync = promisify(exec);
@@ -34,16 +35,24 @@ export const runTypeOrmCommand = async (
     process.exit(1);
   }
 
-  const cmd = `ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js ${command} ${args.join(' ')} -d ${datasource}`;
-  log.command(`Running: ${cmd}`);
+  // Set environment variable to control query logging
+  if (options?.showQueries === false) {
+    process.env.TYPEORM_LOGGING = 'false';
+  }
 
+  const cmd = `ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js ${command} ${args.join(' ')} -d src/database/data-source.ts`;
   const loader = log.startLoader(`Executing ${command} command...`);
 
   try {
     const { stdout, stderr } = await execAsync(cmd);
-    loader.stop('✅', `${command} completed successfully`);
+    loader.stop('🎉', `command executed done 😎 \n`);
     if (stderr) console.error(stderr);
-    console.log(stdout);
+    if (
+      stdout &&
+      (options?.showQueries !== false || !stdout.includes('query:'))
+    ) {
+      console.info('\n', stdout);
+    }
     return true;
   } catch (error) {
     loader.stop('❌', `Error executing ${command} command`);

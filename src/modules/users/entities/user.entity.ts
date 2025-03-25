@@ -1,16 +1,13 @@
+import { ROLE } from '@/common/constants/role.constant';
+import { BaseEntity } from '@/common/entities/base.entity';
 import {
-  Entity,
-  Column,
   BeforeInsert,
   BeforeUpdate,
-  Unique,
-  ManyToMany,
-  JoinTable,
+  Column,
   CreateDateColumn,
+  Entity,
+  Unique,
 } from 'typeorm';
-import { BaseEntity } from '@/common/entities/base.entity';
-import { ROLE } from '@/common/constants/role.constant';
-import { Role } from '@/common/entities/role.entity';
 
 export enum UserState {
   ACTIVE = 'active',
@@ -78,20 +75,6 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   avatar: string;
-
-  @ManyToMany(() => Role)
-  @JoinTable({
-    name: 'user_roles',
-    joinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'role_id',
-      referencedColumnName: 'id',
-    },
-  })
-  roles: Role[];
 
   @CreateDateColumn()
   createdAt: Date;

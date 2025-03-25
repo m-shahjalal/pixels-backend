@@ -5,7 +5,6 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { RolesGuard } from '../guards/roles.guard';
 import { ResourceModuleType } from '@/common/enums/resource-modules.enum';
 import { ResourceActionType } from '@/common/enums/resource-action.enum';
 
@@ -22,7 +21,7 @@ export const Auth = (
 ) => {
   return applyDecorators(
     SetMetadata(PERMISSION_KEY, { resource, action }),
-    UseGuards(JwtAuthGuard, RolesGuard),
+    UseGuards(JwtAuthGuard),
     ApiBearerAuth(),
     ApiUnauthorizedResponse({ description: 'Unauthorized' }),
     ApiForbiddenResponse({ description: 'Forbidden' }),

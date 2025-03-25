@@ -44,9 +44,6 @@ class EnvironmentVariables {
   @IsBoolean()
   DB_LOGGING: boolean;
 
-  @IsBoolean()
-  DB_SSL: boolean;
-
   @IsString()
   DB_SCHEMA: string;
 

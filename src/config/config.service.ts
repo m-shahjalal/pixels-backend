@@ -32,9 +32,8 @@ export class AppConfigService {
       database: this.configService.get('DB_NAME', 'alysia'),
       entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
       migrations: ['./database/migrations/*.ts'],
-      migrationsRun: true,
-      synchronize: this.configService.get('APP_ENV') !== 'production',
-      logging: this.configService.get('APP_ENV') !== 'production',
+      synchronize: this.configService.get('DB_SYNCHRONIZE', false),
+      logging: this.configService.get('DB_LOGGING', ['error']),
     };
   }
 

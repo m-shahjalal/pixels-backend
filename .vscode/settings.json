@@ -12,11 +12,14 @@
     "ossp",
     "outform",
     "PGDATA",
+    "PGPASSWORD",
     "pgsqldata",
     "pgsqldb",
     "pids",
     "procps",
-    "pubout"
+    "pubout",
+    "schemaname",
+    "tablename"
   ],
   "editor.codeActionsOnSave": {
     "source.fixAll.tslint": "explicit"

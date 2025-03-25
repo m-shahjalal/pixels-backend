@@ -2,6 +2,7 @@
 import * as fs from 'fs';
 import { DataSource } from 'typeorm';
 import { datasource } from '../../src/database/data-source';
+import { log } from './utils/etc';
 
 async function runQuery() {
   const filePath = process.argv[2];
@@ -19,22 +20,22 @@ async function runQuery() {
 
     // Connect to database
     connection = await datasource.initialize();
-    console.log('✅ Database connection established');
+    log.success('Database connection established');
 
     // Execute query
-    console.log('Executing SQL query...');
+    log.process('Executing SQL query...');
     const queryRunner = connection.createQueryRunner();
     const result = await queryRunner.query(sql);
 
-    console.log('Query executed successfully!');
-    console.log('Result:', JSON.stringify(result, null, 2));
+    log.success('Query executed successfully!');
+    log.info('Result:', JSON.stringify(result, null, 2));
 
     return result;
   } catch (error) {
     console.error('❌ Error executing query:', error.message);
-    process.exit(1);
   } finally {
     if (connection) await connection.destroy();
+    process.exit(1);
   }
 }
 

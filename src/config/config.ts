@@ -41,9 +41,8 @@ export interface DatabaseConfig {
   entities: string[];
   migrations: string[];
   synchronize: boolean;
-  logging: boolean;
+  logging: boolean | string[];
   autoLoadEntities?: boolean;
-  ssl?: boolean;
   schema?: string;
 }
 
@@ -86,9 +85,8 @@ export default registerAs(
       entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
       migrations: ['database/migrations/*{.ts,.js}'],
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
-      logging: process.env.DB_LOGGING === 'true',
+      logging: JSON.parse(process.env.DB_LOGGING) || false,
       autoLoadEntities: true,
-      ssl: process.env.DB_SSL === 'true',
       schema: process.env.DB_SCHEMA || 'public',
     },
     jwt: {

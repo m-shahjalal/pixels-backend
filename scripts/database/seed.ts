@@ -4,6 +4,7 @@ import * as path from 'path';
 import { DataSource } from 'typeorm';
 import { datasource } from '../../src/database/data-source';
 import { config } from 'dotenv';
+import { log } from './utils/etc';
 
 // Load environment variables
 config();
@@ -38,7 +39,7 @@ async function runSeeds() {
   try {
     // Connect to database
     connection = await datasource.initialize();
-    console.log('✅ Database connection established');
+    log.success('Database connection established');
 
     const seedsDir = path.join(__dirname, 'seeds');
 

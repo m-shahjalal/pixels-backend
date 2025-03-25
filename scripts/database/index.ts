@@ -2,30 +2,25 @@
 import * as path from 'path';
 import * as child_process from 'child_process';
 
-// Determine if running locally (not in Docker)
 const isRunningLocally =
   !process.env.DOCKER_ENV && process.env.APP_ENV !== 'production';
 
-// If running locally, modify environment variables for database connection
 if (isRunningLocally) {
-  console.log('🔧 Running locally, adjusting database connection settings...');
   process.env.DB_HOST = 'localhost';
-  process.env.DB_SYNCHRONIZE = 'false'; // Prevent synchronization issues
+  process.env.DB_SYNCHRONIZE = 'false';
 }
 
-// Forward all arguments to the original CLI script
 const args = process.argv.slice(2);
 const cliPath = path.resolve(__dirname, 'cli.ts');
+const tsPath = path.resolve(process.cwd(), 'tsconfig.json');
 
 try {
-  // Run the CLI script with the modified environment
+  // Execute the CLI command using ts-node
+  console.info();
   const result = child_process.spawnSync(
     'ts-node',
-    ['-r', 'tsconfig-paths/register', cliPath, ...args],
-    {
-      stdio: 'inherit',
-      env: process.env,
-    },
+    ['--project', tsPath, '-r', 'tsconfig-paths/register', cliPath, ...args],
+    { stdio: 'inherit', env: process.env, cwd: process.cwd() },
   );
 
   process.exit(result.status || 0);
