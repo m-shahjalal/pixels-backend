@@ -18,11 +18,11 @@ import {
   ResetPasswordDto,
 } from './dto/reset-password.dto';
 import { AuthResponse } from './dto/auth-response.dto';
-import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { GetUser } from './decorators/get-user.decorator';
-import { User } from '@modules/users/entities/user.entity';
-import { UserAccessTokenClaims } from '@/common/dtos/auth-token-output.dto';
+import { User } from '../../modules/users/entities/user.entity';
+import { UserAccessTokenClaims } from '../../common/dtos/auth-token-output.dto';
 
 @ApiTags('auth')
 @Controller('auth')

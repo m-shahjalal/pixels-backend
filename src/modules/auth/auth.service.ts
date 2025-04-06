@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserService } from '@modules/users/services/user.service';
-import { EmailService } from '@common/services/email.service';
-import { SmsService } from '@common/services/sms.service';
+import { UserService } from '../../modules/users/services/user.service';
+import { EmailService } from '../../common/services/email.service';
+import { SmsService } from '../../common/services/sms.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -17,10 +17,10 @@ import {
   ResetPasswordDto,
 } from './dto/reset-password.dto';
 import { AuthResponse } from './dto/auth-response.dto';
-import { User } from '@modules/users/entities/user.entity';
-import { UserAccessTokenClaims } from '@common/dtos/auth-token-output.dto';
+import { User } from '../../modules/users/entities/user.entity';
+import { UserAccessTokenClaims } from '../../common/dtos/auth-token-output.dto';
 import { randomBytes } from 'crypto';
-import { AppLogger } from '@common/logger/logger.service';
+import { AppLogger } from '../../common/logger/logger.service';
 
 @Injectable()
 export class AuthService {

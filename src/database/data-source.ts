@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 
 import { DataSourceOptions } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
-import { AppConfigService } from '@config/config.service';
+import { AppConfigService } from '../config/config.service';
 import { ConfigService } from '@nestjs/config';
 
 const configService = new AppConfigService(new ConfigService());
