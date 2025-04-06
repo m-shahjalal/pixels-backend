@@ -11,8 +11,11 @@ async function bootstrap() {
   const config = app.get(ConfigService).get(CONFIG_KEY);
   const { port, apiPrefix } = config.app;
 
-  app.setGlobalPrefix(apiPrefix);
   app.enableCors();
+
+  app.setGlobalPrefix(apiPrefix, {
+    exclude: ['/ping', '/health', '/docs', '/'],
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -26,7 +29,7 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document, customOptions);
 
   await app.listen(port);
-  console.info(`🚀🚀 http://localhost:${port}/${apiPrefix}`);
+  console.info(`🚀🚀 http://localhost:${port}`);
 }
 
 bootstrap();

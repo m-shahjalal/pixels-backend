@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AppConfigService } from './config/config.service';
 
 @Controller()
@@ -14,14 +14,16 @@ export class AppController {
       name: 'Alysia Backend API',
       version: '1.0.0',
       config: appConfig,
+      message: 'Welcome to the Alysia Backend API',
+      docs: `/docs`,
     };
   }
 
   @Get('ping')
   ping() {
     return {
-      status: 'healthy',
-      uptime: `${process.uptime().toFixed(2)} seconds`,
+      message: 'pong 🔔',
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -32,26 +34,5 @@ export class AppController {
       uptime: `${process.uptime().toFixed(2)} seconds`,
       timestamp: new Date().toISOString(),
     };
-  }
-
-  @Get('paginated')
-  getPaginated() {
-    return {
-      data: [
-        { id: 1, name: 'Item 1' },
-        { id: 2, name: 'Item 2' },
-      ],
-      meta: {
-        page: 1,
-        limit: 10,
-        total: 2,
-        totalPages: 1,
-      },
-    };
-  }
-
-  @Get('error')
-  getError() {
-    throw new HttpException('Test error message', HttpStatus.BAD_REQUEST);
   }
 }
