@@ -6,7 +6,8 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && tsc-alias",
+    "build": "nest build && cp register-paths.js dist/register-paths.js && cp tsconfig.json dist/tsconfig.json",
+    "vercel-build": "chmod +x vercel-build.sh && ./vercel-build.sh",
     "start": "nest start",
     "dev": "nest start --watch",
     "debug": "nest start --debug --watch",
@@ -51,6 +52,7 @@
     "class-validator": "^0.14.1",
     "commander": "^13.1.0",
     "dotenv": "^16.4.7",
+    "module-alias": "^2.2.3",
     "nodemailer": "^6.9.9",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

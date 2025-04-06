@@ -1,15 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["src/*"],
-      "@common/*": ["src/common/*"],
-      "@modules/*": ["src/modules/*"],
-      "@config/*": ["src/config/*"]
-    }
-  },
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }
