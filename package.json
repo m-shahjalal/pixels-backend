@@ -8,6 +8,7 @@
   "scripts": {
     "build": "nest build",
     "start": "nest start",
+    "build:check": "tsc --noEmit",
     "dev": "nest start --watch",
     "debug": "nest start --debug --watch",
     "prod": "node dist/main",
