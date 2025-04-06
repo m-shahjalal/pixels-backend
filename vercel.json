@@ -3,7 +3,6 @@
   "builds": [
     {
       "src": "src/main.ts",
-      "dest": "dist/main.js",
       "use": "@vercel/node"
     }
   ],
