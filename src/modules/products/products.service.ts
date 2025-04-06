@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { PaginatedResponse } from '@/common/interfaces/paginated-response.interface';
-import { PaginationDto } from '@/common/dtos/pagination-params.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { PaginationDto } from '../../common/dtos/pagination-params.dto';
 
 @Injectable()
 export class ProductsService {

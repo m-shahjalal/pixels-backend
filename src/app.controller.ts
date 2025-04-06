@@ -17,6 +17,14 @@ export class AppController {
     };
   }
 
+  @Get('ping')
+  ping() {
+    return {
+      status: 'healthy',
+      uptime: `${process.uptime().toFixed(2)} seconds`,
+    };
+  }
+
   @Get('health')
   getHealth() {
     return {

@@ -5,8 +5,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { ResourceModuleType } from '@/common/enums/resource-modules.enum';
-import { ResourceActionType } from '@/common/enums/resource-action.enum';
+import { ResourceModuleType } from '../../../common/enums/resource-modules.enum';
+import { ResourceActionType } from '../../../common/enums/resource-action.enum';
 
 export const PERMISSION_KEY = 'permission';
 

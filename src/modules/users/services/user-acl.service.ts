@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ROLE } from '@/common/constants/role.constant';
-import { ResourceModule } from '@/common/enums/resource-modules.enum';
-import { ResourceAction } from '@/common/enums/resource-action.enum';
-import { BaseAclService } from '@/common/acl/base-acl.service';
-
+import { ROLE } from '../../../common/constants/role.constant';
+import { ResourceModule } from '../../../common/enums/resource-modules.enum';
+import { ResourceAction } from '../../../common/enums/resource-action.enum';
+import { BaseAclService } from '../../../common/acl/base-acl.service';
 @Injectable()
 export class UserAclService extends BaseAclService {
   constructor() {

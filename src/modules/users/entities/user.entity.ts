@@ -1,11 +1,12 @@
-import { ROLE } from '@/common/constants/role.constant';
-import { BaseEntity } from '@/common/entities/base.entity';
+import { ROLE } from '../../../common/constants';
+import { BaseEntity } from '../../../common/entities/base.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
+  PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 
@@ -18,6 +19,9 @@ export enum UserState {
 
 @Entity('users')
 export class User extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
   @Column({ length: 200, unique: true, nullable: false })
   email: string;
 
