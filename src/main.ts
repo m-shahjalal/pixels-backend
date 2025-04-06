@@ -1,5 +1,7 @@
 import '../register-paths';
 
+console.log('Starting NestJS application...');
+
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
